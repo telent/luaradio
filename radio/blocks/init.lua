@@ -28,6 +28,7 @@ return {
     WAVFileSink = require('radio.blocks.sinks.wavfile'),
     RawFileSink = require('radio.blocks.sinks.rawfile'),
     PrintSink = require('radio.blocks.sinks.print'),
+    SaveBitsSink = require('radio.blocks.sinks.savebits'),
     JSONSink = require('radio.blocks.sinks.json'),
     PulseAudioSink = require('radio.blocks.sinks.pulseaudio'),
     PortAudioSink = require('radio.blocks.sinks.portaudio'),
