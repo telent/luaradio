@@ -62,6 +62,7 @@ return {
     --- Math Operations
     AddBlock = require('radio.blocks.signal.add'),
     AddConstantBlock = require('radio.blocks.signal.addconstant'),
+    ClipBlock = require('radio.blocks.signal.clip'),    
     SubtractBlock = require('radio.blocks.signal.subtract'),
     MultiplyBlock = require('radio.blocks.signal.multiply'),
     MultiplyConstantBlock = require('radio.blocks.signal.multiplyconstant'),
