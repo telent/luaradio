@@ -32,9 +32,30 @@ top:connect(delayed_clock, 'out', sampler, 'clock')
 top:connect(sampler, 'out',
             radio.WAVFileSink('/tmp/'..filename..'_1.wav', 1), 'in')
 top:connect(sampler,  slicer)
-decoder = radio.BiphaseMarkDecoderBlock()
-top:connect(slicer,  decoder)
---top:connect(decoder, radio.PrintSink())
-top:connect(decoder, radio.SaveBitsSink("/tmp/dat"))
+top:connect(slicer, radio.PrintSink('/tmp/slices_'..filename..'.dat'))
 
+decoder = radio.BiphaseMarkDecoderBlock()
+findframe = radio.WaitForPreambleBlock({
+		0,0,0,0,
+		1,1,1, 1,1,1, 0,
+		
+		}),
+
+top:connect(slicer, decoder)
+top:connect(decoder, findframe)
+
+top:connect(findframe, radio.PrintSink('/tmp/biph_'..filename..'.dat'))
+top:connect(findframe,
+	    radio.ReplaceBitsBlock({1,1,1,1,1,0}, {1,1,1,1,1}),
+    	    radio.ReplaceBitsBlock({1,1,1,1, 1,1,1,1, 1, 0, 1,1,1,1,1,1},
+	                           {1,1,1,1, 1,1,1,1}),
+            radio.SaveBitsSink('/tmp/'..filename..'.bin'))
 top:run()
+
+-- some observations from looking at the raw binary signal
+-- 1) there are sequences of 9 short - 1 long - 6 short which
+-- are "interesting" because I'd have expected any sequence
+-- of 11111 to be replaced by 111110.
+-- 2) at the end of transmission there's another 9 short
+-- 3) after "some long" (4+) at the start, there are 6 short
+-- hypothesis => each frame in a packet is bracketed by 6 short / 9 short
