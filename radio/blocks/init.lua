@@ -90,6 +90,7 @@ return {
     DifferentialDecoderBlock = require('radio.blocks.signal.differentialdecoder'),
     ManchesterDecoderBlock = require('radio.blocks.signal.manchesterdecoder'),
     BiphaseMarkDecoderBlock = require('radio.blocks.signal.biphasemarkdecoder'),
+    ReplaceBitsBlock = require('radio.blocks.signal.replacebits'),
     --- Type Conversion
     ComplexToRealBlock = require('radio.blocks.signal.complextoreal'),
     ComplexToImagBlock = require('radio.blocks.signal.complextoimag'),
