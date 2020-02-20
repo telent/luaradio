@@ -15,29 +15,32 @@ function BiphaseMarkDecoderBlock:instantiate(invert)
 end
 
 function BiphaseMarkDecoderBlock:initialize()
-    self.prev_value = 0
+    self.bit1 = false
+    self.bit0 = false
+    self.skip = 0
     self.out = types.Bit.vector()
 end
 
 function BiphaseMarkDecoderBlock:process(x)
     local out = self.out:resize(0)
-
-    for i = 0, x.length-1, 2 do
-        local bit1 = x.data[i]	
-        local bit2 = x.data[i+1]
-
-	if self.prev_value ~= bit1.value then
-	    -- can't be biphase encoding if there was no transition on
-	    -- even-numbered clock edge
-	    if bit1.value == bit2.value then
-		out:append(types.Bit(self.space_token))
-	    else
-		out:append(types.Bit(self.mark_token))
-	    end
+    for i = 0, x.length-1 do
+        local v = x.data[i].value
+        if not self.bit0 then
+	     self.bit0 = v
+	elseif not self.bit1 then
+	     self.bit1 = v
+	else
+	     if self.bit0 ~= self.bit1 then -- valid encoding => transition 0->1
+	         local outv = (self.bit1 == v) and 0 or 1
+	         out:append(types.Bit(outv))
+   	         self.bit0 = v
+  	         self.bit1 = false
+	     else
+    	         self.bit0 = self.bit1
+    	         self.bit1 = v
+	     end
 	end
-	self.prev_value = bit2.value
     end
-
     return out
 end
 
