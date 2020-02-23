@@ -118,4 +118,6 @@ return {
     POCSAGDecoderBlock = require('radio.blocks.protocol.pocsagdecoder'),
     --- Varicode
     VaricodeDecoderBlock = require('radio.blocks.protocol.varicodedecoder'),
+
+    X2DDecoderBlock = require('radio.blocks.protocol.x2ddecoder'),
 }

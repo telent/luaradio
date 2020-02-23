@@ -35,22 +35,18 @@ top:connect(sampler,  slicer)
 top:connect(slicer, radio.PrintSink('/tmp/slices_'..filename..'.dat'))
 
 decoder = radio.BiphaseMarkDecoderBlock()
-findframe = radio.WaitForPreambleBlock({
-		0,0,0,0,
-		1,1,1, 1,1,1, 0,
-		
-		}),
+framer = radio.X2DDecoderBlock()
 
 top:connect(slicer, decoder)
-top:connect(decoder, findframe)
+top:connect(decoder, framer)
 
-top:connect(findframe, radio.PrintSink('/tmp/biph_'..filename..'.dat'))
-top:connect(findframe,
-	    radio.ReplaceBitsBlock({1,1,1,1,1,0}, {1,1,1,1,1}),
-    	    radio.ReplaceBitsBlock({1,1,1,1, 1,1,1,1, 1, 0, 1,1,1,1,1,1},
-	                           {1,1,1,1, 1,1,1,1}),
-            radio.SaveBitsSink('/tmp/'..filename..'.bin'))
+top:connect(framer, radio.JSONSink('/tmp/'..filename..'.json'))
+
 top:run()
+
+
+
+
 
 -- some observations from looking at the raw binary signal
 -- 1) there are sequences of 9 short - 1 long - 6 short which
