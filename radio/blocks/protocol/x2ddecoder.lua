@@ -8,8 +8,8 @@ local types = require('radio.types')
 -- X2D Related Constants
 
 local X2D_PREAMBLE = { 0,0,0,0 };
-local X2D_FRAME_START = { 1,1,1, 1,1,1 };
-local X2D_FRAME_END = { 1,1,1,1, 1,1,1,1, 1,0 };
+local X2D_FRAME_START = { 1,1,1, 1,1,1, 0 };
+local X2D_FRAME_END = { 1,1,1, 1,1,1,1, 1,0 };
 
 local X2DFramerState = {
     SEARCHING = 1,
@@ -22,9 +22,32 @@ local X2DFramerState = {
 
 local X2DFrameType = types.ObjectType.factory()
 
+function sum(table)
+    local s = 0
+    for i = 1, #table do
+        s = s + table[i]
+    end
+    return s
+end
+
 function X2DFrameType.new(payload)
     local self = setmetatable({}, X2DFrameType)
-    self.payload = payload
+    local pl = (table.concat(payload)):gsub("111110", "11111")
+    local bytes = {}
+    for i = 1, #pl-1, 8 do
+        local b=0
+        for j = 7 , 0, -1 do
+	    b = b*2 + (pl:byte(i+j) - 48)
+	end
+        table.insert(bytes, b)
+    end
+    local h = bytes[#bytes-1]
+    local l = bytes[#bytes]
+    self.payload = table.slice(bytes, 1, #bytes - 2)
+    local expectedChecksum = (h*256) + l
+    local actualChecksum = bit.bxor(sum(self.payload) - 1, 0xffff)
+    self.checksum = { actual = actualChecksum, expected = expectedChecksum }
+    self.isValid = (actualChecksum == expectedChecksum)
     return self
 end
 
