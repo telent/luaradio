@@ -28,7 +28,7 @@ function X2DFrameType.new(payload)
     return self
 end
 
--- X2D Framer Block
+-- X2D Decoder Block
 
 local X2DDecoderBlock = block.factory("X2DDecoderBlock")
 
@@ -68,9 +68,6 @@ end
 function X2DDecoderBlock:initialize()
     set_state(self, X2DFramerState.SEARCHING)
 
-    self.byte_buffer = types.Bit.vector(8)
-    self.byte_buffer_length = 0
-    self.raw_frame = types.Bit.vector()
     self.out = X2DFrameType.vector()
 end
 
@@ -108,7 +105,6 @@ function X2DDecoderBlock:process(x)
 	    elseif table_matches(self.candidate, self.pattern) then
 	        set_state(self, X2DFramerState.IN_FRAME_START)
 		table_append(self.payload, self.candidate)
-		print("complete frame ", table.concat(self.payload))
 		out:append(X2DFrameType.new(self.payload))
 	    else
 	        table.insert(self.payload, self.candidate[1])
